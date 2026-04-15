@@ -1,5 +1,5 @@
 name: "GitHub Release Action"
-description: "Create GitHub releases with semantic versioning and changelog"
+description: "Create GitHub releases with semantic versioning and GitHub-generated notes"
 author: "Ananta Cloud"
 
 inputs:
@@ -20,19 +20,28 @@ inputs:
     required: false
     default: "auto"
 
+  generate_release_notes:
+    description: "Use GitHub auto-generated release notes"
+    required: false
+    default: "true"
+
   artifacts:
     description: "Comma-separated file paths"
     required: false
 
   draft:
+    description: "Create as draft"
+    required: false
     default: "false"
 
   prerelease:
+    description: "Mark as prerelease"
+    required: false
     default: "false"
-    
+
 branding:
   color: blue
-  icon: arrow-up-circle
+  icon: upload
   
 runs:
   using: "node20"
