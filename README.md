@@ -1,7 +1,26 @@
 # 🚀 GitHub Release Action
 
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/1b6b7b7a-a22c-42d2-a2ee-2b88b0953c55" />
+
 Automate GitHub Releases directly from your CI/CD pipeline.
 
+<p align="center">
+
+![Build](https://img.shields.io/github/actions/workflow/status/anantacloud-actions/github-release-action/release.yml?branch=main&style=for-the-badge&label=Build)
+
+![Version](https://img.shields.io/github/v/release/anantacloud-actions/github-release-action?style=for-the-badge&label=Latest)
+
+![License](https://img.shields.io/github/license/anantacloud-actions/github-release-action?style=for-the-badge)
+
+![Downloads](https://img.shields.io/github/downloads/anantacloud-actions/github-release-action/total?style=for-the-badge)
+
+![Dependabot](https://img.shields.io/badge/dependabot-enabled-blue?style=for-the-badge)
+
+![Bundled](https://img.shields.io/badge/bundled-ncc-orange?style=for-the-badge)
+
+![Node](https://img.shields.io/badge/node-20.x-green?style=for-the-badge)
+
+</p>
 
 ## ✨ Features
 
