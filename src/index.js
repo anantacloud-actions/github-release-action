@@ -3,7 +3,7 @@ const github = require("@actions/github");
 const fs = require("fs");
 
 function parseVersion(tag) {
-  const match = tag.match(/v?(\d+)\.(\d+)\.(\d+)/);
+  const match = tag && tag.match(/v?(\d+)\.(\d+)\.(\d+)/);
   if (!match) return null;
   return {
     major: parseInt(match[1]),
@@ -39,15 +39,16 @@ async function detectBump(octokit, owner, repo, commits) {
 
     try {
       const { data: pr } = await octokit.rest.pulls.get({
-        owner, repo, pull_number: prNumber
+        owner,
+        repo,
+        pull_number: prNumber
       });
 
       const labels = pr.labels.map(l => l.name);
 
       if (labels.includes("release:major")) return "major";
       if (labels.includes("release:minor")) bumpType = "minor";
-
-    } catch (e) {
+    } catch {
       core.warning(`PR lookup failed for #${prNumber}`);
     }
   }
@@ -55,43 +56,25 @@ async function detectBump(octokit, owner, repo, commits) {
   return bumpType;
 }
 
-async function generateChangelog(commits) {
-  let sections = {
-    "🚀 Features": [],
-    "🐛 Fixes": [],
-    "🧹 Chores": []
-  };
+async function generateGitHubNotes(octokit, owner, repo, tag, previousTag) {
+  const res = await octokit.rest.repos.generateReleaseNotes({
+    owner,
+    repo,
+    tag_name: tag,
+    previous_tag_name: previousTag || undefined
+  });
 
-  for (const commit of commits) {
-    const msg = commit.commit.message.split("\n")[0];
-
-    if (msg.startsWith("feat")) {
-      sections["🚀 Features"].push(msg);
-    } else if (msg.startsWith("fix")) {
-      sections["🐛 Fixes"].push(msg);
-    } else {
-      sections["🧹 Chores"].push(msg);
-    }
-  }
-
-  let changelog = "## 🚀 Release Notes\n\n";
-
-  for (const section in sections) {
-    if (sections[section].length > 0) {
-      changelog += `### ${section}\n`;
-      sections[section].forEach(m => changelog += `- ${m}\n`);
-      changelog += "\n";
-    }
-  }
-
-  return changelog;
+  return res.data.body;
 }
 
 async function uploadArtifacts(octokit, uploadUrl, artifacts) {
   const files = artifacts.split(",").map(f => f.trim());
 
   for (const file of files) {
-    if (!fs.existsSync(file)) continue;
+    if (!fs.existsSync(file)) {
+      core.warning(`File not found: ${file}`);
+      continue;
+    }
 
     const data = fs.readFileSync(file);
 
@@ -104,6 +87,8 @@ async function uploadArtifacts(octokit, uploadUrl, artifacts) {
       name: file.split("/").pop(),
       data
     });
+
+    core.info(`Uploaded: ${file}`);
   }
 }
 
@@ -118,12 +103,17 @@ async function run() {
     let body = core.getInput("body");
     let bumpType = core.getInput("version_bump");
 
+    const useGitHubNotes =
+      core.getInput("generate_release_notes") === "true";
+
     const artifacts = core.getInput("artifacts");
     const draft = core.getInput("draft") === "true";
     const prerelease = core.getInput("prerelease") === "true";
 
     const tags = await octokit.rest.repos.listTags({
-      owner, repo, per_page: 1
+      owner,
+      repo,
+      per_page: 1
     });
 
     const latestTag = tags.data.length ? tags.data[0].name : null;
@@ -131,7 +121,10 @@ async function run() {
 
     const comparison = latestTag
       ? await octokit.rest.repos.compareCommits({
-          owner, repo, base: latestTag, head: "HEAD"
+          owner,
+          repo,
+          base: latestTag,
+          head: "HEAD"
         })
       : { data: { commits: [] } };
 
@@ -146,12 +139,23 @@ async function run() {
       core.info(`Version bump (${bumpType}): ${latestTag} → ${tag}`);
     }
 
-    if (!name) name = `${tag} — Release`;
+    if (!name) {
+      name = `${tag} — Release`;
+    }
 
     if (!body) {
-      body = commits.length
-        ? await generateChangelog(commits)
-        : "## 🚀 Initial Release\n";
+      if (useGitHubNotes) {
+        core.info("Using GitHub generated release notes...");
+        body = await generateGitHubNotes(
+          octokit,
+          owner,
+          repo,
+          tag,
+          latestTag
+        );
+      } else {
+        body = "## 🚀 Release\n\nChanges included in this release.";
+      }
     }
 
     const release = await octokit.rest.repos.createRelease({
