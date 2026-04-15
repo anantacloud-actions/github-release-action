@@ -1,16 +1,21 @@
 {
   "name": "github-release-action",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "src/index.js",
   "scripts": {
-    "build": "ncc build index.js -o dist",
+    "build": "ncc build src/index.js -o dist",
     "prepare": "npm run build"
   },
+  "keywords": [],
+  "author": "Ananta Cloud",
+  "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1"
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.1.0",
+    "semver": "^7.7.4"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.1"
+    "@vercel/ncc": "^0.38.4"
   }
 }
