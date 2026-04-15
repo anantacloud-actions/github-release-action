@@ -14,8 +14,6 @@
 
 </p>
 
----
-
 <p align="center">
   <b>⚡ The easiest way to automate GitHub Releases — fully powered by your workflow</b>
 </p>
@@ -27,15 +25,11 @@
   <a href="#-examples">Examples</a>
 </p>
 
----
-
 ## 🎬 See It In Action (10 sec)
 
 <p align="center">
   <img src="docs/demo.gif" width="720" alt="Demo"/>
 </p>
-
----
 
 ## 💥 Why This Exists
 
@@ -49,8 +43,6 @@ This action turns your CI/CD into:
 
 > 🧠 **Self-driving releases with zero friction**
 
----
-
 ## ⚡ Features
 
 * 🏷️ **Automatic semantic versioning**
@@ -60,8 +52,6 @@ This action turns your CI/CD into:
 * 🔮 **Release preview in PR**
 * ⚙️ **Zero-config mode**
 * 🔐 **Enterprise-ready**
-
----
 
 ## 🚀 30-Second Setup
 
@@ -73,8 +63,6 @@ This action turns your CI/CD into:
 👉 That’s it.
 No config. No scripts. No headaches.
 
----
-
 ## 🎯 Real Usage
 
 ```yaml
@@ -85,15 +73,11 @@ No config. No scripts. No headaches.
     artifacts: "dist/app.zip"
 ```
 
----
-
 ## 🧠 How It Works
 
 ```text
 PR → Merge → Detect → Version → Notes → Release 🚀
 ```
-
----
 
 ## 🏷️ Smart Versioning
 
@@ -104,8 +88,6 @@ Control releases via PR labels:
 | `release:major` | 💥 Breaking change |
 | `release:minor` | 🚀 Feature         |
 | none            | 🐛 Patch           |
-
----
 
 ## 🧾 Beautiful Release Notes (Auto)
 
@@ -120,8 +102,6 @@ Control releases via PR labels:
 * @dev made their first contribution 🎉
 ```
 
----
-
 ## 🔮 Preview Before You Merge
 
 Every PR shows future release notes:
@@ -133,16 +113,12 @@ Every PR shows future release notes:
 - fix: improve performance (#48)
 ```
 
----
-
 ## 📦 Upload Artifacts
 
 ```yaml
 with:
   artifacts: "dist/app.zip,dist/report.json"
 ```
-
----
 
 ## ⚙️ Inputs
 
@@ -157,16 +133,12 @@ with:
 | `draft`                  | Draft release                | false   |
 | `prerelease`             | Pre-release                  | false   |
 
----
-
 ## 📤 Outputs
 
 | Name          | Description |
 | ------------- | ----------- |
 | `tag`         | Final tag   |
 | `release_url` | Release URL |
-
----
 
 ## 🎨 Customize Release Notes
 
@@ -185,8 +157,6 @@ changelog:
       labels: ["bug"]
 ```
 
----
-
 ## 🆚 Why Not semantic-release?
 
 | Feature           | This Action | semantic-release |
@@ -196,16 +166,12 @@ changelog:
 | PR-based workflow | ✅ Yes       | ❌ No             |
 | Learning curve    | 🟢 Low      | 🔴 High          |
 
----
-
 ## 🧠 Designed For
 
 * DevOps engineers
 * Platform teams
 * Open source maintainers
 * Anyone tired of manual releases
-
----
 
 ## 🏆 What You Gain
 
@@ -214,23 +180,17 @@ changelog:
 * 📦 Standardize releases
 * 🚀 Ship faster
 
----
-
 ## ⭐ Star This Repo
 
 If this saved you time:
 
-👉 **Give it a star** ⭐
-👉 Helps others discover it
-👉 Motivates further improvements
-
----
+- 👉 **Give it a star** ⭐
+- 👉 Helps others discover it
+- 👉 Motivates further improvements
 
 ## 🤝 Contributing
 
 PRs welcome. Ideas welcome. Improvements welcome.
-
----
 
 ## 🔐 Security
 
@@ -238,13 +198,9 @@ PRs welcome. Ideas welcome. Improvements welcome.
 * CodeQL scanning
 * Secure workflows
 
----
-
 ## 📜 License
 
 MIT
-
----
 
 <p align="center">
   <b>Stop managing releases. Start shipping them 🚀</b>
