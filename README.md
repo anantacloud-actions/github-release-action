@@ -39,7 +39,7 @@ Automate GitHub Releases directly from your CI/CD pipeline.
 ## 🚀 Example
 ```
 - name: Release
-  uses: anantacloud-bot/github-release-action@v1
+  uses: anantacloud-actions/github-release-action@v1
   with:
     tag: v1.2.0
     name: "v1.2.0 — Feature Update"
