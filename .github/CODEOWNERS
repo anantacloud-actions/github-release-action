@@ -1,0 +1,74 @@
+# ==========================================
+# CODEOWNERS — Governance + Enforcement
+# ==========================================
+# Order matters: last matching rule takes precedence
+
+# --------------------------------------------------
+# 👑 GLOBAL OWNERSHIP (MANDATORY)
+# --------------------------------------------------
+# action-maintainers must approve EVERYTHING
+*   @action-maintainers
+
+# --------------------------------------------------
+# 🔐 SECURITY-CRITICAL AREAS
+# --------------------------------------------------
+# Require additional approval from security team
+
+/security/                  @security-approvers
+.github/dependabot.yml      @security-approvers
+.github/workflows/security* @security-approvers
+
+# --------------------------------------------------
+# 🚀 RELEASE-CRITICAL AREAS
+# --------------------------------------------------
+# Require release-approvers for publishing logic
+
+release.yml                 @action-maintainers
+.github/workflows/release*  @action-maintainers
+action.yml                  @action-maintainers
+
+# --------------------------------------------------
+# ⚙️ CORE ACTION LOGIC
+# --------------------------------------------------
+# High-impact changes → tightly controlled
+
+/src/                       @action-maintainers
+/dist/                      @action-maintainers
+
+# --------------------------------------------------
+# 🧪 TESTS
+# --------------------------------------------------
+/tests/                     @action-maintainers
+
+# --------------------------------------------------
+# 📖 DOCUMENTATION
+# --------------------------------------------------
+# Maintainers still required, others optional via PR
+
+/docs/                      @action-maintainers
+README.md                   @action-maintainers
+
+# --------------------------------------------------
+# 🤖 BOTS (NON-BLOCKING)
+# --------------------------------------------------
+# Bots get auto-assigned but do NOT gate merges
+
+package.json                @dependabot[bot]
+package-lock.json           @dependabot[bot]
+.github/                    @dependabot[bot]
+
+# --------------------------------------------------
+# 🧾 FALLBACK (EXPLICIT)
+# --------------------------------------------------
+# Reinforces global rule
+
+*   @action-maintainers
+
+# ==========================================
+# ENFORCEMENT (SET IN BRANCH PROTECTION)
+# ==========================================
+# ✅ Require pull request reviews
+# ✅ Require review from Code Owners
+# ✅ Require 1–2 approvals minimum
+# ✅ Require status checks (CI must pass)
+# ==========================================
