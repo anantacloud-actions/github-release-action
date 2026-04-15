@@ -1,69 +1,76 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
+const fs = require("fs");
 
-function bumpPatch(version) {
-  const match = version.match(/v?(\d+)\.(\d+)\.(\d+)/);
-  if (!match) return "v1.0.0";
-
-  return `v${match[1]}.${match[2]}.${parseInt(match[3]) + 1}`;
+function parseVersion(tag) {
+  const match = tag.match(/v?(\d+)\.(\d+)\.(\d+)/);
+  if (!match) return null;
+  return {
+    major: parseInt(match[1]),
+    minor: parseInt(match[2]),
+    patch: parseInt(match[3])
+  };
 }
 
-async function getLatestTag(octokit, owner, repo) {
-  const tags = await octokit.rest.repos.listTags({
-    owner,
-    repo,
-    per_page: 1
-  });
+function bump(version, type) {
+  if (!version) return "v1.0.0";
 
-  return tags.data.length ? tags.data[0].name : null;
+  let { major, minor, patch } = version;
+
+  if (type === "major") {
+    major++; minor = 0; patch = 0;
+  } else if (type === "minor") {
+    minor++; patch = 0;
+  } else {
+    patch++;
+  }
+
+  return `v${major}.${minor}.${patch}`;
 }
 
-async function generateChangelog(octokit, owner, repo, baseTag) {
-  core.info(`Generating changelog from ${baseTag} → HEAD`);
+async function detectBump(octokit, owner, repo, commits) {
+  let bumpType = "patch";
 
-  const comparison = await octokit.rest.repos.compareCommits({
-    owner,
-    repo,
-    base: baseTag,
-    head: "HEAD"
-  });
+  for (const commit of commits) {
+    const match = commit.commit.message.match(/#(\d+)/);
+    if (!match) continue;
 
-  const prs = new Map();
+    const prNumber = parseInt(match[1]);
 
-  for (const commit of comparison.data.commits) {
-    const matches = commit.commit.message.match(/#(\d+)/g) || [];
+    try {
+      const { data: pr } = await octokit.rest.pulls.get({
+        owner, repo, pull_number: prNumber
+      });
 
-    for (const match of matches) {
-      const prNumber = parseInt(match.replace("#", ""));
-      prs.set(prNumber, true);
+      const labels = pr.labels.map(l => l.name);
+
+      if (labels.includes("release:major")) return "major";
+      if (labels.includes("release:minor")) bumpType = "minor";
+
+    } catch (e) {
+      core.warning(`PR lookup failed for #${prNumber}`);
     }
   }
 
-  if (prs.size === 0) {
-    return "## 🚀 Release Notes\n\nNo significant changes.\n";
-  }
+  return bumpType;
+}
 
-  const sections = {
+async function generateChangelog(commits) {
+  let sections = {
     "🚀 Features": [],
     "🐛 Fixes": [],
     "🧹 Chores": []
   };
 
-  for (const prNumber of prs.keys()) {
-    const { data: pr } = await octokit.rest.pulls.get({
-      owner,
-      repo,
-      pull_number: prNumber
-    });
+  for (const commit of commits) {
+    const msg = commit.commit.message.split("\n")[0];
 
-    const labels = pr.labels.map(l => l.name);
-
-    if (labels.includes("enhancement")) {
-      sections["🚀 Features"].push(pr);
-    } else if (labels.includes("bug")) {
-      sections["🐛 Fixes"].push(pr);
+    if (msg.startsWith("feat")) {
+      sections["🚀 Features"].push(msg);
+    } else if (msg.startsWith("fix")) {
+      sections["🐛 Fixes"].push(msg);
     } else {
-      sections["🧹 Chores"].push(pr);
+      sections["🧹 Chores"].push(msg);
     }
   }
 
@@ -72,16 +79,32 @@ async function generateChangelog(octokit, owner, repo, baseTag) {
   for (const section in sections) {
     if (sections[section].length > 0) {
       changelog += `### ${section}\n`;
-
-      for (const pr of sections[section]) {
-        changelog += `- ${pr.title} (#${pr.number}) by @${pr.user.login}\n`;
-      }
-
+      sections[section].forEach(m => changelog += `- ${m}\n`);
       changelog += "\n";
     }
   }
 
   return changelog;
+}
+
+async function uploadArtifacts(octokit, uploadUrl, artifacts) {
+  const files = artifacts.split(",").map(f => f.trim());
+
+  for (const file of files) {
+    if (!fs.existsSync(file)) continue;
+
+    const data = fs.readFileSync(file);
+
+    await octokit.rest.repos.uploadReleaseAsset({
+      url: uploadUrl,
+      headers: {
+        "content-type": "application/octet-stream",
+        "content-length": data.length
+      },
+      name: file.split("/").pop(),
+      data
+    });
+  }
 }
 
 async function run() {
@@ -93,38 +116,45 @@ async function run() {
     let tag = core.getInput("tag");
     let name = core.getInput("name");
     let body = core.getInput("body");
+    let bumpType = core.getInput("version_bump");
 
-    const generate = core.getInput("generate_changelog") === "true";
-    const sinceInput = core.getInput("changelog_since");
-
+    const artifacts = core.getInput("artifacts");
     const draft = core.getInput("draft") === "true";
     const prerelease = core.getInput("prerelease") === "true";
 
-    let baseTag = sinceInput || await getLatestTag(octokit, owner, repo);
+    const tags = await octokit.rest.repos.listTags({
+      owner, repo, per_page: 1
+    });
+
+    const latestTag = tags.data.length ? tags.data[0].name : null;
+    const parsed = parseVersion(latestTag);
+
+    const comparison = latestTag
+      ? await octokit.rest.repos.compareCommits({
+          owner, repo, base: latestTag, head: "HEAD"
+        })
+      : { data: { commits: [] } };
+
+    const commits = comparison.data.commits;
 
     if (!tag) {
-      if (!baseTag) {
-        tag = "v1.0.0";
-        core.info("No tags found → using v1.0.0");
-      } else {
-        tag = bumpPatch(baseTag);
-        core.info(`Auto bump: ${baseTag} → ${tag}`);
+      if (bumpType === "auto") {
+        bumpType = await detectBump(octokit, owner, repo, commits);
       }
+
+      tag = bump(parsed, bumpType);
+      core.info(`Version bump (${bumpType}): ${latestTag} → ${tag}`);
     }
 
-    if (!name) {
-      name = `${tag} — Release`;
+    if (!name) name = `${tag} — Release`;
+
+    if (!body) {
+      body = commits.length
+        ? await generateChangelog(commits)
+        : "## 🚀 Initial Release\n";
     }
 
-    if (!body && generate) {
-      if (!baseTag) {
-        body = "## 🚀 Release Notes\n\nInitial release 🎉\n";
-      } else {
-        body = await generateChangelog(octokit, owner, repo, baseTag);
-      }
-    }
-
-    const response = await octokit.rest.repos.createRelease({
+    const release = await octokit.rest.repos.createRelease({
       owner,
       repo,
       tag_name: tag,
@@ -134,7 +164,11 @@ async function run() {
       prerelease
     });
 
-    core.info(`✅ Release created: ${response.data.html_url}`);
+    core.info(`✅ Release created: ${release.data.html_url}`);
+
+    if (artifacts) {
+      await uploadArtifacts(octokit, release.data.upload_url, artifacts);
+    }
 
   } catch (error) {
     core.setFailed(error.message);
