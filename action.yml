@@ -1,38 +1,35 @@
 name: "GitHub Release Action"
-description: "Create GitHub releases with auto changelog and smart defaults"
+description: "Create GitHub releases with semantic versioning and changelog"
+author: "Ananta Cloud"
 
 inputs:
   tag:
-    description: "Git tag for the release (auto-generated if not provided)"
+    description: "Git tag (optional)"
     required: false
 
   name:
-    description: "Release name (auto-generated if not provided)"
+    description: "Release name"
     required: false
 
   body:
-    description: "Release notes / changelog (auto-generated if not provided)"
+    description: "Release notes"
     required: false
 
-  generate_changelog:
-    description: "Whether to auto-generate changelog"
+  version_bump:
+    description: "auto | major | minor | patch"
     required: false
-    default: "true"
+    default: "auto"
 
-  changelog_since:
-    description: "Base tag for changelog (optional override)"
+  artifacts:
+    description: "Comma-separated file paths"
     required: false
 
   draft:
-    description: "Create as draft"
-    required: false
     default: "false"
 
   prerelease:
-    description: "Mark as prerelease"
-    required: false
     default: "false"
-
+    
 branding:
   color: blue
   icon: arrow-up-circle
