@@ -1,8 +1,6 @@
 # 🚀 GitHub Release Action
 
-<p align="center">
-  <img src="docs/banner.png" alt="GitHub Release Action Banner" />
-</p>
+<img width="876" height="456" alt="image" src="https://github.com/user-attachments/assets/79b57ff2-0719-41da-a7c2-c2e0d51775fb" />
 
 <p align="center">
 
