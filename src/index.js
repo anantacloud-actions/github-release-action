@@ -94,6 +94,7 @@ async function uploadArtifacts(octokit, uploadUrl, artifacts) {
 
 async function run() {
   try {
+    let token = core.getInput("token");
     const octokit = github.getOctokit(token);
     const { owner, repo } = github.context.repo;
 
@@ -101,7 +102,6 @@ async function run() {
     let name = core.getInput("name");
     let body = core.getInput("body");
     let bumpType = core.getInput("version_bump");
-    let token = core.getInput("token");
 
     const useGitHubNotes =
       core.getInput("generate_release_notes") === "true";
