@@ -28,7 +28,7 @@
 ## 🎬 See It In Action (10 sec)
 
 <p align="center">
-  <img src="docs/demo.gif" width="720" alt="Demo"/>
+  <img src="docs/github-release-action.gif" width="720" alt="Demo"/>
 </p>
 
 ## 💥 Why This Exists
