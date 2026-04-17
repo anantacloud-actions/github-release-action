@@ -124,6 +124,7 @@ with:
 
 | Name                     | Description                  | Default |
 | ------------------------ | ---------------------------- | ------- |
+| `token`                  | GitHub Token                 | —       |
 | `tag`                    | Custom tag                   | auto    |
 | `name`                   | Release name                 | auto    |
 | `body`                   | Release notes                | auto    |
