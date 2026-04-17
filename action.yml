@@ -1,4 +1,4 @@
-name: "GitHub Release Action"
+name: "GitHub Release Creation"
 description: "Create GitHub releases with semantic versioning and GitHub-generated notes"
 author: "Ananta Cloud"
 
