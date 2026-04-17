@@ -25,7 +25,7 @@
   <a href="#-examples">Examples</a>
 </p>
 
-## 🎬 See It In Action (10 sec)
+## 🎬 See It In Action (30 sec)
 
 <p align="center">
   <img src="docs/github-release-action.gif" width="800" alt="GitHub Release Action Demo"/>
