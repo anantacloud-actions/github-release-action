@@ -28,7 +28,9 @@
 ## 🎬 See It In Action (10 sec)
 
 <p align="center">
-  <img src="docs/github-release-action.gif" width="720" alt="Demo"/>
+  <img src="docs/github-release-action.gif" width="800" alt="GitHub Release Action Demo"/>
+  <br/>
+  <em>Automated release creation with version bumping 🚀</em>
 </p>
 
 ## 💥 Why This Exists
