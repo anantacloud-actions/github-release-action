@@ -3,6 +3,9 @@ description: "Create GitHub releases with semantic versioning and GitHub-generat
 author: "Ananta Cloud"
 
 inputs:
+  token:
+    description: "GitHub token"
+    required: true
   tag:
     description: "Git tag (optional)"
     required: false
