@@ -1,8 +1,7 @@
 {
   "name": "github-release-action",
   "version": "1.0.0",
-  "type": "module",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/index.js -o dist",
     "prepare": "npm run build"
